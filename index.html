@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GramVision | Hafiz Muhammad Qasim (Sap ID: 63736)</title>
+  <meta name="description" content="Microscopy & Gram Stain Classifier. A project by Hafiz Muhammad Qasim (Sap ID: 63736), Submitted to: Dr. Sohail at Riphah International University, Lahore.">
+  <link rel="icon" type="image/png" href="riphah-logo.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Header with Luxury Green Gradient matching Reference Image 1 -->
+  <header>
+    <a class="brand" href="#">
+      <img class="university-logo" src="riphah-logo.png" alt="Riphah Logo" width="60" height="80">
+      <span>
+        <b>RIPHAH</b>
+        <small>INTERNATIONAL UNIVERSITY</small>
+        <small class="campus">LAHORE</small>
+      </span>
+    </a>
+    <div class="academic">
+      MS Medical Laboratory Sciences
+      <span>AI Assignment</span>
+      <div class="academic-sub">Hafiz Muhammad Qasim · Sap ID: 63736</div>
+    </div>
+    <button id="welcomeBtn" class="quiet">Welcome</button>
+  </header>
+
+  <!-- Modern Navigation Tabs like voluble-jelly -->
+  <div class="subnav">
+    <div class="subnav-wrap">
+      <button class="tab-btn active" data-tab="classifier">🔬 Classifier</button>
+      <button class="tab-btn" data-tab="protocol">🧪 Staining Protocol</button>
+      <button class="tab-btn" data-tab="morphology">🧬 Morphology Guide</button>
+      <button class="tab-btn" data-tab="quiz">📝 Microbiology Quiz</button>
+      <button class="tab-btn" data-tab="history">📊 Session History (<span id="histCount">0</span>)</button>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="wrap">
+    <!-- TAB 1: CLASSIFIER -->
+    <div id="tab-classifier" class="tab-content">
+      <!-- Kicker Card -->
+      <div class="kicker-card">
+        <div class="kicker-left">
+          <span style="font-size:11px; font-weight:800; color:var(--emerald); text-transform:uppercase; letter-spacing:1px;">Microscopy / Research Workspace</span>
+          <h1>Gram<span>Vision</span> Classifier</h1>
+          <p>Analyze Gram-stained microscope fields, review morphology, and evaluate specimen stain absorption.</p>
+        </div>
+        <div class="kicker-right">
+          <small>PROJECT BY</small>
+          <strong>Hafiz Muhammad Qasim</strong>
+          <div style="color:var(--muted); margin-top:2px;">
+            Sap ID: <b style="color:var(--emerald); font-family:monospace;">63736</b> · Submitted to: <b>Dr. Sohail</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- Split Layout -->
+      <div class="classifier-grid">
+        <!-- Left: Upload & Demos -->
+        <div class="col-left">
+          <div class="card drop-area" id="dropArea">
+            <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" hidden>
+            <div class="drop-icon">🔬</div>
+            <h3>Drop Gram-stained slide here</h3>
+            <p>PNG, JPG, or WEBP · up to 25 MB</p>
+            <button id="browseBtn" class="btn-emerald">Choose image file</button>
+          </div>
+
+          <!-- Quick Samples -->
+          <div class="card">
+            <div class="demos-title">Quick Reference Samples</div>
+            <div class="demo-row">
+              <button class="demo-chip" data-demo="0"><span class="dot-pos"></span> Staphylococcus aureus (Gram + Cocci)</button>
+              <button class="demo-chip" data-demo="1"><span class="dot-neg"></span> Escherichia coli (Gram - Bacilli)</button>
+              <button class="demo-chip" data-demo="2"><span class="dot-pos"></span> Bacillus subtilis (Gram + Rods)</button>
+              <button class="demo-chip" data-demo="3"><span class="dot-amber"></span> Polymicrobial Smear (Mixed Flora)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Inspector & Diagnostic Card -->
+        <div class="col-right">
+          <div class="card viewport-card">
+            <div class="viewport-header">
+              <b>Slide Field Inspector <span id="fileNameBadge" style="color:var(--muted); font-weight:normal; font-family:monospace;"></span></b>
+              <div class="mode-toggle">
+                <button class="active" data-mode="original">Original</button>
+                <button data-mode="mask">Stain Mask</button>
+                <button data-mode="heat">Hue Map</button>
+              </div>
+            </div>
+
+            <div class="canvas-container">
+              <canvas id="displayCanvas" hidden></canvas>
+              <div id="emptyView" class="empty-view">
+                <span>🔬</span>
+                <p>No slide loaded yet</p>
+                <small>Drop an image on the left or click any sample to inspect.</small>
+              </div>
+              <div id="loader" class="loader-overlay" hidden>
+                <div class="spinner"></div>
+                <b id="loaderMsg" style="font-size:13px;">Reading microscopic channels...</b>
+              </div>
+            </div>
+          </div>
+
+          <!-- Diagnostic Results Card -->
+          <div id="resultCard" class="card" hidden>
+            <div class="result-header">
+              <div>
+                <span style="font-size:10px; font-weight:800; text-transform:uppercase; color:var(--muted); letter-spacing:1px;">Classification Output</span>
+                <h2 id="resClassTitle">—</h2>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button id="copyBtn" style="padding:6px 12px; font-size:12px; font-weight:700; background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; cursor:pointer;">📋 Copy Report</button>
+                <button id="printBtn" class="btn-emerald" style="padding:6px 14px; font-size:12px;">🖨️ Print Report</button>
+              </div>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-pill"><small>Morphology</small><strong id="resMorph">—</strong></div>
+              <div class="stat-pill"><small>Slide Quality</small><strong id="resQuality">—</strong></div>
+              <div class="stat-pill"><small>Focus Sharpness</small><strong id="resFocus">—</strong></div>
+              <div class="stat-pill"><small>Luminance</small><strong id="resLuma">—</strong></div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+              <small style="font-size:11px; font-weight:800; text-transform:uppercase; color:var(--muted);">Potential Candidate Organisms & Flora</small>
+              <div id="orgPills" class="pills-wrap"></div>
+            </div>
+
+            <div style="margin-bottom:14px;">
+              <small style="font-size:11px; font-weight:800; text-transform:uppercase; color:var(--muted);">Microscopy Findings</small>
+              <p id="resExplain" style="font-size:12px; color:var(--ink-secondary); background:#f8fafc; border:1px solid var(--border); border-radius:10px; padding:10px; margin:4px 0 0; line-height:1.6;"></p>
+            </div>
+
+            <div class="clinical-note">
+              <b>⚠️ Clinical Guidance & Therapeutic Consideration</b>
+              <p id="resClinical" style="margin:2px 0 0; line-height:1.5;"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: PROTOCOL -->
+    <div id="tab-protocol" class="tab-content" hidden>
+      <div style="max-width:800px; margin:0 auto;">
+        <h2 style="font-size:24px; font-weight:900; margin-bottom:6px;">Gram Staining Procedure & Principle</h2>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">First formulated by Hans Christian Gram in 1884, differentiating bacterial species based on cell wall peptidoglycan thickness.</p>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="card">
+            <span style="font-size:10px; font-weight:800; color:var(--emerald); background:#ecfdf5; padding:2px 6px; border-radius:4px;">STEP 1 · 1 MINUTE</span>
+            <h3 style="margin:8px 0 4px; font-size:15px;">Primary Stain: Crystal Violet</h3>
+            <p style="font-size:12px; color:var(--muted); margin:0;">Basic dye enters all bacterial cell walls and binds negatively charged cytoplasm, staining all cells purple.</p>
+          </div>
+          <div class="card">
+            <span style="font-size:10px; font-weight:800; color:#b45309; background:#fef3c7; padding:2px 6px; border-radius:4px;">STEP 2 · 1 MINUTE</span>
+            <h3 style="margin:8px 0 4px; font-size:15px;">Mordant: Gram's Iodine</h3>
+            <p style="font-size:12px; color:var(--muted); margin:0;">Forms an insoluble Crystal Violet-Iodine (CV-I) complex, locking dye within the dense peptidoglycan lattice.</p>
+          </div>
+          <div class="card">
+            <span style="font-size:10px; font-weight:800; color:#334155; background:#f1f5f9; padding:2px 6px; border-radius:4px;">STEP 3 · 10-15 SECONDS</span>
+            <h3 style="margin:8px 0 4px; font-size:15px;">Decolorizer: 95% Ethanol</h3>
+            <p style="font-size:12px; color:var(--muted); margin:0;">Rate-limiting step: dissolves the thin lipid outer membrane of Gram-negative cells, washing out CV-I. Thick walls dehydrate and retain CV-I.</p>
+          </div>
+          <div class="card">
+            <span style="font-size:10px; font-weight:800; color:#be123c; background:#ffe4e6; padding:2px 6px; border-radius:4px;">STEP 4 · 45 SECONDS</span>
+            <h3 style="margin:8px 0 4px; font-size:15px;">Counterstain: Safranin</h3>
+            <p style="font-size:12px; color:var(--muted); margin:0;">Stains decolorized Gram-negative cells pink/red, while purple Gram-positive cells mask it completely.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: MORPHOLOGY -->
+    <div id="tab-morphology" class="tab-content" hidden>
+      <div style="max-width:800px; margin:0 auto;">
+        <h2 style="font-size:24px; font-weight:900; margin-bottom:6px;">Bacterial Morphology Reference</h2>
+        <p style="font-size:13px; color:var(--muted); margin-bottom:20px;">Primary bacterial geometries recognized by the optical computer vision engine.</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div class="card">
+            <b style="color:var(--emerald); font-size:14px;">Cocci (Spherical)</b>
+            <p style="font-size:12px; color:var(--muted); margin:6px 0 0;">Divided into clusters (Staphylococcus), chains (Streptococcus), or tetrads. Aspect ratio ~1.0.</p>
+          </div>
+          <div class="card">
+            <b style="color:#e11d48; font-size:14px;">Bacilli (Rods)</b>
+            <p style="font-size:12px; color:var(--muted); margin:6px 0 0;">Cylindrical cells (e.g., E. coli, Bacillus). Aspect ratio between 2.0 and 5.0.</p>
+          </div>
+          <div class="card">
+            <b style="color:#b45309; font-size:14px;">Diplococci (Pairs)</b>
+            <p style="font-size:12px; color:var(--muted); margin:6px 0 0;">Paired cells with flattened adjacent borders (e.g., Neisseria gonorrhoeae, Streptococcus pneumoniae).</p>
+          </div>
+          <div class="card">
+            <b style="color:#4f46e5; font-size:14px;">Spirilli / Curved</b>
+            <p style="font-size:12px; color:var(--muted); margin:6px 0 0;">Helical or comma-shaped bacilli (e.g., Campylobacter jejuni, Vibrio cholerae).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: QUIZ -->
+    <div id="tab-quiz" class="tab-content" hidden>
+      <div style="max-width:640px; margin:0 auto;" class="card">
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #e2e8f0; padding-bottom:8px; margin-bottom:12px; font-size:12px; color:var(--muted);">
+          <span id="quizProgress">Question 1 of 5</span>
+          <b style="color:var(--emerald);" id="quizScore">Score: 0 / 0</b>
+        </div>
+        <h3 id="quizQ" style="font-size:16px; font-weight:800; margin:0 0 16px;">—</h3>
+        <div id="quizOptions" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+        <div id="quizWhy" style="display:none; padding:10px; background:#f0fdf4; border:1px solid #a7f3d0; border-radius:8px; font-size:12px; color:#064e3b; margin-bottom:14px;"></div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <button id="quizReset" style="background:none; border:none; color:var(--muted); font-size:12px; cursor:pointer;">Reset Quiz</button>
+          <button id="quizNext" class="btn-emerald" style="display:none;">Next Question ➔</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: HISTORY -->
+    <div id="tab-history" class="tab-content" hidden>
+      <div style="max-width:800px; margin:0 auto;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <h2 style="font-size:20px; font-weight:900; margin:0;">Session Analyses Log</h2>
+          <button id="clearHistBtn" style="padding:4px 10px; font-size:11px; color:#b91c1c; border:1px solid #fecaca; background:#fff; border-radius:6px; cursor:pointer;">Clear Log</button>
+        </div>
+        <div id="historyEntries" style="display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-wrap">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <img src="riphah-logo.png" alt="Riphah Logo" width="30" height="40">
+        <div>
+          <b style="color:var(--ink);">Riphah International University, Lahore</b>
+          <div style="font-size:11px; color:var(--muted);">Department of Medical Laboratory Sciences (MLS)</div>
+        </div>
+      </div>
+      <div style="text-align:right;">
+        <div>A project by: <b>Hafiz Muhammad Qasim</b> (Sap ID: <b>63736</b>)</div>
+        <div style="color:var(--muted);">Submitted to: <b>Dr. Sohail</b> </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Welcome Modal -->
+  <dialog id="welcomeModal">
+    <div class="modal-content">
+      <img src="riphah-logo.png" alt="Riphah Logo" class="modal-logo" width="60" height="78">
+      <span style="font-size:10px; font-weight:800; color:var(--emerald); background:#ecfdf5; padding:3px 8px; border-radius:10px; border:1px solid #a7f3d0; text-transform:uppercase;">Riphah International University, Lahore</span>
+      <h2 style="font-size:22px; font-weight:900; margin:10px 0 4px;">Gram<span style="color:var(--emerald);">Vision</span> Workspace</h2>
+
+      <div class="modal-creds">
+        <div><span>A project by:</span><b>Hafiz Muhammad Qasim</b></div>
+        <div><span>Sap ID:</span><b style="color:var(--emerald); font-family:monospace;">63736</b></div>
+        <div><span>Submitted to:</span><b>Dr. Sohail</b></div>
+        <div><span>Program:</span><b>MS Medical Laboratory Sciences</b></div>
+      </div>
+
+      <p style="font-size:12px; color:var(--muted); line-height:1.5; margin-bottom:16px;">
+        Welcome to the automated Gram stain classification and microscopy research environment.
+        Upload any slide or test sample to inspect color wavelengths, cellular morphology, and potential isolates.
+      </p>
+
+      <button id="closeModalBtn" class="modal-btn">Enter Workspace</button>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
